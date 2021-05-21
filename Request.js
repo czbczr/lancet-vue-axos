@@ -1,9 +1,9 @@
 /**
- * version 1.1.38
+ * version 1.1.391
 */
 import axios from "axios";
 import MD5 from "js-md5"
-import {BASE_URL,TIMEOUT,WITH_CREDENTIALS,PROJECT_FLAG,AUTHORIZATION,confLoading} from 'lancet-vue-axios/Config'
+import {BASE_URL,TIMEOUT,WITH_CREDENTIALS,PROJECT_FLAG,AUTHORIZATION,confLoading} from '@/utils/axios/Config'
 
 let loadingCount=0;
 
@@ -127,15 +127,18 @@ _axios.interceptors.request.use(
 		const CONFIG_HEADERS=conf.headers;
 
 		if (conf.reqMethod=='dowload') {//下载
-			console.log(JSON.stringify(CONFIG_HEADERS))
 			headersData["Sign-Key"] = MD5(`${conf.url}${sortASCII(conf.params)}${PROJECT_FLAG}${headersData["Cur-Time"]}`);
 			conf.headers={...CONFIG_HEADERS,...headersData};
-			dowload(conf);	
+			dowload(conf);
+			const SOURCE = _axios.CancelToken.source()
+			SOURCE.cancel('Operation canceled by the user.');
 		}
 		else if(conf.reqMethod=='upload'){//上传
 			headersData["Sign-Key"] = MD5(`${conf.url}${PROJECT_FLAG}${headersData["Cur-Time"]}`);
 			conf.headers={...CONFIG_HEADERS,...headersData};
 			upload(conf);
+			const SOURCE = _axios.CancelToken.source()
+			SOURCE.cancel('Operation canceled by the user.');
 		}
 		else if(conf.method.toLowerCase()==='get'){//get
 			headersData["Sign-Key"] = MD5(`${conf.url}${sortASCII(conf.params)}${PROJECT_FLAG}${headersData["Cur-Time"]}`);
@@ -163,7 +166,6 @@ _axios.interceptors.request.use(
 _axios.interceptors.response.use(
 	function(response) {
 		hideLoading();
-		if(!response.data.msg){return responseData(response.data,0)}
 		if(typeof response.data.code==='number'){
 			if(response.data.code==0){
 				return response.data;
@@ -178,10 +180,15 @@ _axios.interceptors.response.use(
 		}
 	},
 	function(error) {//接口错误
+		hideLoading();
+		//if(typeof error==='string'){
+		if(error.toString().includes('undefined')){
+			return Promise.resolve(responseData('成功',0));
+		}
+		//}
 		console.error('----axios response error----',error);
 		_axios.interceptors.errCallback&&_axios.interceptors.errCallback(error);
 		// Do something with response error
-		hideLoading();
 		return Promise.reject(error);
 	}
 );
