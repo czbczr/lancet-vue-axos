@@ -1,9 +1,9 @@
 /**
- * version 1.1.36
+ * version 1.1.37
 */
 import axios from "axios";
 import MD5 from "js-md5"
-import {BASE_URL,TIMEOUT,WITH_CREDENTIALS,PROJECT_FLAG,AUTHORIZATION,confLoading} from 'lancet-vue-axios/Config'
+import {BASE_URL,TIMEOUT,WITH_CREDENTIALS,PROJECT_FLAG,AUTHORIZATION,confLoading} from '@/utils/axios/Config'
 
 let loadingCount=0;
 
@@ -127,6 +127,7 @@ _axios.interceptors.request.use(
 		const CONFIG_HEADERS=conf.headers;
 
 		if (conf.reqMethod=='dowload') {//下载
+			console.log(JSON.stringify(CONFIG_HEADERS))
 			headersData["Sign-Key"] = MD5(`${conf.url}${sortASCII(conf.params)}${PROJECT_FLAG}${headersData["Cur-Time"]}`);
 			conf.headers={...CONFIG_HEADERS,...headersData};
 			dowload(conf);	
@@ -162,6 +163,7 @@ _axios.interceptors.request.use(
 _axios.interceptors.response.use(
 	function(response) {
 		hideLoading();
+		if(!response.data.msg){return responseData(response.data,0)}
 		if(typeof response.data.code==='number'){
 			if(response.data.code==0){
 				return response.data;
@@ -172,7 +174,7 @@ _axios.interceptors.response.use(
 		}
 		else{
 			console.error('----error----','返回code不是number类型');
-			return false;
+			return Promise.reject(response.data);
 		}
 	},
 	function(error) {//接口错误
@@ -202,7 +204,7 @@ function upload(config){
 		}
 	).then(function (res) {
 		hideLoading();
-		if(typeof res.data.code==='number'){
+		if(typeof res.data.code==='number'&&!config.reqMethod){
 			if(res.data.code==0){
 				console.log('----上传成功----');
 				return Promise.resolve(res.data);
@@ -236,7 +238,6 @@ function dowload(config) {
 	}
 	axios.get(
 		_url,
-		config.data,
 		{
 		responseType: 'blob',
 		params: config.params,
