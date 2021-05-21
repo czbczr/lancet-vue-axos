@@ -1,9 +1,9 @@
 /**
- * version 1.1.37
+ * version 1.1.38
 */
 import axios from "axios";
 import MD5 from "js-md5"
-import {BASE_URL,TIMEOUT,WITH_CREDENTIALS,PROJECT_FLAG,AUTHORIZATION,confLoading} from '@/utils/axios/Config'
+import {BASE_URL,TIMEOUT,WITH_CREDENTIALS,PROJECT_FLAG,AUTHORIZATION,confLoading} from 'lancet-vue-axios/Config'
 
 let loadingCount=0;
 
