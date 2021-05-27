@@ -1,9 +1,9 @@
 /**
- * version 1.1.391
+ * version 1.1.394
 */
 import axios from "axios";
 import MD5 from "js-md5"
-import {BASE_URL,TIMEOUT,WITH_CREDENTIALS,PROJECT_FLAG,AUTHORIZATION,confLoading} from '@/utils/axios/Config'
+import {BASE_URL,TIMEOUT,WITH_CREDENTIALS,PROJECT_FLAG,AUTHORIZATION,confLoading} from 'lancet-vue-axios/Config'
 
 let loadingCount=0;
 
@@ -211,10 +211,10 @@ function upload(config){
 		}
 	).then(function (res) {
 		hideLoading();
-		if(typeof res.data.code==='number'&&!config.reqMethod){
+		if(typeof res.data.code==='number'){
 			if(res.data.code==0){
 				console.log('----上传成功----');
-				return Promise.resolve(res.data);
+				return Promise.resolve(responseData('上传成功'));
 			}
 			// console.warn('----axios response 进入拦截callback----');
 			// _axios.interceptors.resCallback&&_axios.interceptors.resCallback(response.data);
